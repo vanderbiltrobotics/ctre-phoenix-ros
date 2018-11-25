@@ -13,3 +13,6 @@
 *.exe
 *.out
 *.app
+
+# IDE files
+.idea

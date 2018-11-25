@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ctre_phoenix)
+project(motor_control)
 
-## Set default architecture to amd64
-## This can be overriden by passing -Darch=architecture
+## Detect system architecture and save it to $arch
 EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE arch )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -99,11 +98,13 @@ include_directories(
         ${catkin_INCLUDE_DIRS}
 )
 
+## Declare libraries to be imported
 ADD_LIBRARY(CTRE_Phoenix STATIC IMPORTED)
 ADD_LIBRARY(CTRE_PhoenixCCI STATIC IMPORTED)
 ADD_LIBRARY(CTRE_PhoenixPlatformLinuxSocketCan STATIC IMPORTED)
 ADD_LIBRARY(CTRE_PhoenixCanutils STATIC IMPORTED)
 
+## Import appropriate libraries for architecture
 if(${arch} STREQUAL "x86_64")
     SET_TARGET_PROPERTIES(CTRE_Phoenix PROPERTIES
             IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/x86-64/libCTRE_Phoenix.a)
@@ -131,14 +132,14 @@ endif()
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/phoenix_node.cpp)
 #add_executable(phoenix_node ${PROJECT_SOURCE_DIR}/example.cpp)
+add_executable(${PROJECT_NAME}_test_node ${PROJECT_SOURCE_DIR}/example.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 #add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_executable(${PROJECT_NAME}_node ${PROJECT_SOURCE_DIR}/example.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(${PROJECT_NAME}_test_node
     ${catkin_LIBRARIES}
     Threads::Threads
     CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
