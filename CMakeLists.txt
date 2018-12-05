@@ -14,6 +14,8 @@ find_package(catkin REQUIRED
         COMPONENTS
         roscpp
         geometry_msgs
+        dynamic_reconfigure
+        roslaunch
 )
 
 ## System dependencies are found with CMake's conventions
@@ -70,6 +72,14 @@ find_package (Threads REQUIRED)
 #   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
 #)
+
+## add dynamic reconfigure api
+generate_dynamic_reconfigure_options(
+        ${PROJECT_SOURCE_DIR}/cfg/Talon.cfg
+)
+
+## Generate launch files
+roslaunch_add_file_check(${PROJECT_SOURCE_DIR}/launch/test.launch)
 
 ###################################
 ## catkin specific configuration ##
@@ -134,12 +144,28 @@ endif()
 #add_executable(phoenix_node ${PROJECT_SOURCE_DIR}/example.cpp)
 add_executable(${PROJECT_NAME}_test_node ${PROJECT_SOURCE_DIR}/example.cpp)
 
+add_executable(talon_node ${PROJECT_SOURCE_DIR}/src/TalonNode.cpp)
+add_dependencies(talon_node ${PROJECT_NAME}_gencfg)
+
+add_executable(victor_node ${PROJECT_SOURCE_DIR}/src/VictorNode.cpp)
+add_dependencies(victor_node ${PROJECT_NAME}_gencfg)
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 #add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_test_node
+    ${catkin_LIBRARIES}
+    Threads::Threads
+    CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
+)
+target_link_libraries(talon_node
+    ${catkin_LIBRARIES}
+    Threads::Threads
+    CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
+)
+target_link_libraries(victor_node
     ${catkin_LIBRARIES}
     Threads::Threads
     CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
