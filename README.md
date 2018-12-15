@@ -1,3 +1,5 @@
+***IMPORTANT: This package has been moved into the repository NASA-RMC-2018-2019. Further development should be done within that repository***
+
 # motor_control
 
 ROS catkin package, containing the [CTRE Phoenix](https://github.com/CrossTheRoadElec/Phoenix-Linux-SocketCAN-Example) libraries.
