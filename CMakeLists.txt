@@ -20,7 +20,7 @@ find_package(catkin REQUIRED
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package (Threads REQUIRED)
+find_package(Threads REQUIRED)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -93,8 +93,7 @@ roslaunch_add_file_check(${PROJECT_SOURCE_DIR}/launch/test.launch)
 catkin_package(
         INCLUDE_DIRS include
         LIBRARIES CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+        CATKIN_DEPENDS roscpp geometry_msgs dynamic_reconfigure roslaunch
 )
 
 ###########
@@ -105,7 +104,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
         include
-        ${catkin_INCLUDE_DIRS}
+        SYSTEM ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare libraries to be imported
@@ -145,10 +144,10 @@ endif()
 add_executable(${PROJECT_NAME}_test_node ${PROJECT_SOURCE_DIR}/example.cpp)
 
 add_executable(talon_node ${PROJECT_SOURCE_DIR}/src/TalonNode.cpp)
-add_dependencies(talon_node ${PROJECT_NAME}_gencfg)
+add_dependencies(talon_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(victor_node ${PROJECT_SOURCE_DIR}/src/VictorNode.cpp)
-add_dependencies(victor_node ${PROJECT_NAME}_gencfg)
+add_dependencies(victor_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -183,5 +182,10 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${arch}/*
 install(DIRECTORY include/
     DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
     FILES_MATCHING PATTERN "*.h"
+    PATTERN ".svn" EXCLUDE
+)
+## Mark launch files for installation
+install(DIRECTORY launch/
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
     PATTERN ".svn" EXCLUDE
 )
