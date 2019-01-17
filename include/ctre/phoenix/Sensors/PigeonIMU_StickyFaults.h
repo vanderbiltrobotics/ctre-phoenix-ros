@@ -21,5 +21,5 @@ struct PigeonIMU_StickyFaults {
 };
 
 } // sensors
-} // ctre_phoenix
+} // phoenix
 } // ctre

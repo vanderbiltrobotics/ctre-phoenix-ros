@@ -33,5 +33,5 @@ public:
     }
 };
 } // namespace motorcontrol
-} // namespace ctre_phoenix
+} // namespace phoenix
 } // namespace ctre

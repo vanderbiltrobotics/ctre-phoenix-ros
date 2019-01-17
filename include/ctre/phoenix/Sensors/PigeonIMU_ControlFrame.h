@@ -10,5 +10,5 @@ enum PigeonIMU_ControlFrame {
 };
 
 } // namespace sensors
-} // namespace ctre_phoenix
+} // namespace phoenix
 } // namespace ctre

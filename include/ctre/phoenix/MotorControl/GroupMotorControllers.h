@@ -10,7 +10,7 @@ namespace motorcontrol {
 class GroupMotorControllers {
 public:
 	static void Register(IMotorController *motorController);
-	static int MotorControllerCount();
+	static size_t MotorControllerCount();
 	static IMotorController* Get(int idx);
 
 private:
@@ -18,6 +18,6 @@ private:
 };
 
 } // namespace motorcontrol
-} // namespace ctre_phoenix
+} // namespace phoenix
 } // namespace ctre
 

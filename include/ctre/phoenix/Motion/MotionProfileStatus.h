@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ctre/phoenix/Motion/SetValueMotionProfile.h"
-#include "ctre/phoenix/Motion/TrajectoryPoint.h"
+#include "ctre/phoenix/motion/SetValueMotionProfile.h"
+#include "ctre/phoenix/motion/TrajectoryPoint.h"
 
 namespace ctre {
 namespace phoenix {
@@ -19,11 +19,11 @@ struct MotionProfileStatus {
 	 * can dump several points at once.  The API will then stream them into the Talon's
 	 * low-level buffer, allowing the Talon to act on them.
 	 */
-	int topBufferRem;
+	size_t topBufferRem;
 	/**
 	 * The number of points in the top trajectory buffer.
 	 */
-	int topBufferCnt;
+	size_t topBufferCnt;
 	/**
 	 * The number of points in the low level Talon buffer.
 	 */
@@ -67,6 +67,6 @@ struct MotionProfileStatus {
 };
 
 } // namespace motion
-} // namespace ctre_phoenix
+} // namespace phoenix
 } // namespace ctre
 
