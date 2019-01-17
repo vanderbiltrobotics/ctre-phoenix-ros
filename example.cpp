@@ -1,11 +1,12 @@
+#define Phoenix_No_WPI // remove WPI dependencies
 #include "ctre/Phoenix.h"
+#include "ctre/phoenix/platform/Platform.h"
+#include "ctre/phoenix/unmanaged/Unmanaged.h"
 #include <string>
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <algorithm>
-#include <cstdint>
-#include "Platform-linux-socket-can.h"
+#include <unistd.h>
 
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
@@ -25,7 +26,7 @@ VictorSPX* br = nullptr;
 
 void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
-  ctre::phoenix::platform::FeedWatchDog(100);
+  ctre::phoenix::unmanaged::FeedEnable(100);
   double moveValue = msg->linear.x;
   double rotateValue = msg->angular.z;
   double leftMotorOutput = 0.0;
