@@ -26,7 +26,7 @@ VictorSPX* br = nullptr;
 
 void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
-  ctre::phoenix::platform::FeedWatchDog(100);
+  ctre::phoenix::unmanaged::FeedEnable(100);
   double moveValue = msg->linear.x;
   double rotateValue = msg->angular.z;
   double leftMotorOutput = 0.0;
