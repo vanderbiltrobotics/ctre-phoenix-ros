@@ -19,10 +19,10 @@ using namespace ctre::phoenix::motorcontrol::can;
 const uint64_t MOVE = 0;
 const uint64_t ROTATE = 1;
 
-VictorSPX* fl = nullptr;
-VictorSPX* fr = nullptr;
-VictorSPX* bl = nullptr;
-VictorSPX* br = nullptr;
+TalonSRX* fl = nullptr;
+TalonSRX* fr = nullptr;
+TalonSRX* bl = nullptr;
+TalonSRX* br = nullptr;
 
 void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
@@ -53,6 +53,11 @@ void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg)
   bl->Set(ControlMode::PercentOutput, rightMotorOutput);
   br->Set(ControlMode::PercentOutput, rightMotorOutput);
   ROS_INFO("Move=%f Rotate=%f", moveValue, rotateValue);
+  ROS_INFO("FL=%d FR=%d BL=%d BR=%d",
+          fl->GetSensorCollection().GetQuadraturePosition(),
+          fr->GetSensorCollection().GetQuadraturePosition(),
+          bl->GetSensorCollection().GetQuadraturePosition(),
+          br->GetSensorCollection().GetQuadraturePosition());
 }
 
 int main(int argc, char **argv) {
@@ -63,10 +68,13 @@ int main(int argc, char **argv) {
     std::string interface = "can0";
     ctre::phoenix::platform::can::SetCANInterface(interface.c_str());
 
-    fl = new VictorSPX(1);
-    fr = new VictorSPX(2);
-    bl = new VictorSPX(3);
-    br = new VictorSPX(4);
+    fl = new TalonSRX(1);
+    fr = new TalonSRX(2);
+    bl = new TalonSRX(4);
+    br = new TalonSRX(3);
+
+    fr->SetInverted(true);
+    br->SetInverted(true);
 
     ros::spin();
     return 0;
