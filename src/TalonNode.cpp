@@ -11,7 +11,7 @@ using namespace ctre::phoenix::motorcontrol::can;
 namespace motor_control {
 
     TalonNode::TalonNode(ros::NodeHandle nh, std::string name, const TalonConfig &config) :
-            nh(nh), server(nh), talon(new TalonSRX(config.id)),
+            nh(nh), _name(name), server(nh), talon(new TalonSRX(config.id)),
             tempPub(nh.advertise<std_msgs::Float64>("temperature", 1)),
             busVoltagePub(nh.advertise<std_msgs::Float64>("bus_voltage", 1)),
             outputPercentPub(nh.advertise<std_msgs::Float64>("output_percent", 1)),
@@ -23,18 +23,12 @@ namespace motor_control {
             lastUpdate(ros::Time::now()){
         server.setCallback(boost::bind(&TalonNode::reconfigure, this, _1, _2));
         server.updateConfig(config);
-        stop();
-    }
-
-    void TalonNode::stop(){
-        std_msgs::Float64Ptr output(new std_msgs::Float64());
-        output->data = 0.0;
-        setPercentOutput(output);
+        talon->Set(ControlMode::PercentOutput, 0);
     }
 
     void TalonNode::setPercentOutput(std_msgs::Float64Ptr output) {
         talon->Set(ControlMode::PercentOutput, output->data);
-        lastUpdate = ros::Time::now();
+        ROS_INFO("Talon %s set to %f", this->_name.c_str(), output->data);
     }
 
     void TalonNode::setVelocity(std_msgs::Float64Ptr output) {
@@ -57,11 +51,6 @@ namespace motor_control {
     }
 
     void TalonNode::update(){
-        if(ros::Time::now() - lastUpdate > ros::Duration(1)){
-            ROS_WARN("Talon SRX not receiving commands!");
-            stop();
-        }
-
         std_msgs::Float64Ptr temperature(new std_msgs::Float64());
         temperature->data = talon->GetTemperature();
         tempPub.publish(temperature);

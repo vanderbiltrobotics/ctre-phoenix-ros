@@ -22,6 +22,7 @@ namespace motor_control{
     class TalonNode{
     private:
         ros::NodeHandle nh;
+        std::string _name;
         dynamic_reconfigure::Server<motor_control::TalonConfig> server;
 
         std::unique_ptr<TalonSRX> talon;
