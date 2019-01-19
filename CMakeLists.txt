@@ -143,11 +143,12 @@ endif()
 #add_executable(phoenix_node ${PROJECT_SOURCE_DIR}/example.cpp)
 add_executable(${PROJECT_NAME}_test_node ${PROJECT_SOURCE_DIR}/example.cpp)
 
-add_executable(talon_node ${PROJECT_SOURCE_DIR}/src/TalonNode.cpp)
-add_dependencies(talon_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-add_executable(victor_node ${PROJECT_SOURCE_DIR}/src/VictorNode.cpp)
-add_dependencies(victor_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(motor_control_node
+        ${PROJECT_SOURCE_DIR}/src/TalonNode.cpp
+        ${PROJECT_SOURCE_DIR}/src/VictorNode.cpp
+        ${PROJECT_SOURCE_DIR}/src/MotorControl.cpp
+)
+add_dependencies(motor_control_node ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -159,12 +160,7 @@ target_link_libraries(${PROJECT_NAME}_test_node
     Threads::Threads
     CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
 )
-target_link_libraries(talon_node
-    ${catkin_LIBRARIES}
-    Threads::Threads
-    CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
-)
-target_link_libraries(victor_node
+target_link_libraries(motor_control_node
     ${catkin_LIBRARIES}
     Threads::Threads
     CTRE_Phoenix CTRE_PhoenixCCI CTRE_PhoenixPlatformLinuxSocketCan CTRE_PhoenixCanutils
