@@ -8,6 +8,9 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
     std::vector<std::unique_ptr<TalonNode>> talons;
 
+    std::string interface = "can0";
+    ctre::phoenix::platform::can::SetCANInterface(interface.c_str());
+
     XmlRpc::XmlRpcValue v;
     nh.getParam("talons", v);
     std::for_each(v.begin(), v.end(), [&nh, &talons](auto p){
@@ -15,8 +18,6 @@ int main(int argc, char **argv) {
         XmlRpc::XmlRpcValue& v(p.second);
         if(v.getType() == XmlRpc::XmlRpcValue::TypeStruct){
             motor_control::TalonConfig config;
-            if(v.hasMember("interface"))
-                config.interface = (std::string&)v["interface"];
             if(v.hasMember("id"))
                 config.id = (int&)v["id"];
             if(v.hasMember("inverted"))
@@ -34,13 +35,11 @@ int main(int argc, char **argv) {
 
             auto node = ros::NodeHandle(nh, name);
             talons.push_back(std::make_unique<TalonNode>(node, name, config));
-            ROS_INFO("Created Talon: %s %d %b", name.c_str(), config.id, config.inverted);
        }else{
            ROS_INFO("Unrecognized Talon XML member: %s", v.toXml().c_str());
        }
     });
 
-    ROS_INFO("Spinning node");
     ros::Rate loop_rate(50);
     while(ros::ok()){
         ctre::phoenix::unmanaged::FeedEnable(50);

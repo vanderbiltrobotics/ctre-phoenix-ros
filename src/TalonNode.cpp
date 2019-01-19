@@ -20,29 +20,30 @@ namespace motor_control {
             velPub(nh.advertise<std_msgs::Int32>("velocity", 1)),
             setPercentSub(nh.subscribe("set_percent_output", 1, &TalonNode::setPercentOutput, this)),
             setVelSub(nh.subscribe("set_velocity", 1, &TalonNode::setVelocity, this)),
-            lastUpdate(ros::Time::now()){
+            lastUpdate(ros::Time::now()), _controlMode(ControlMode::PercentOutput), _output(0.0){
         server.setCallback(boost::bind(&TalonNode::reconfigure, this, _1, _2));
         server.updateConfig(config);
         talon->Set(ControlMode::PercentOutput, 0);
     }
 
     void TalonNode::setPercentOutput(std_msgs::Float64Ptr output) {
-        talon->Set(ControlMode::PercentOutput, output->data);
-        ROS_INFO("Talon %s set to %f", this->_name.c_str(), output->data);
+        this->_controlMode = ControlMode::PercentOutput;
+        this->_output = output->data;
+        this->lastUpdate = ros::Time::now();
     }
 
     void TalonNode::setVelocity(std_msgs::Float64Ptr output) {
-        talon->Set(ControlMode::Velocity, output->data);
-        lastUpdate = ros::Time::now();
+        this->_controlMode = ControlMode::Velocity;
+        this->_output = output->data;
+        this->lastUpdate = ros::Time::now();
     }
 
     void TalonNode::reconfigure(const TalonConfig &config, uint32_t level) {
-        ctre::phoenix::platform::can::SetCANInterface(config.interface.c_str());
-
         TalonSRXConfiguration c;
         talon->ConfigAllSettings(c);
 
-        if (talon->GetDeviceID() != config.id) {
+        if (config.id != 0 && talon->GetDeviceID() != config.id) {
+            ROS_INFO("Resetting TalonNode to new id: %d", config.id);
             talon.reset(new TalonSRX(config.id));
         }
         talon->SetInverted(config.inverted);
@@ -51,6 +52,15 @@ namespace motor_control {
     }
 
     void TalonNode::update(){
+        if(ros::Time::now()-lastUpdate > ros::Duration(0.2)){
+            // Disable the Talon if we aren't getting commands
+            this->_controlMode = ControlMode::PercentOutput;
+            this->_output = 0.0;
+            this->lastUpdate = ros::Time::now();
+            ROS_INFO("Talon disabled for not receiving updates: %s", _name.c_str());
+        }
+        talon->Set(this->_controlMode, this->_output);
+
         std_msgs::Float64Ptr temperature(new std_msgs::Float64());
         temperature->data = talon->GetTemperature();
         tempPub.publish(temperature);

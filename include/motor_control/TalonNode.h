@@ -38,6 +38,9 @@ namespace motor_control{
         ros::Subscriber setVelSub;
 
         ros::Time lastUpdate;
+        ControlMode _controlMode;
+        double _output;
+
     public:
         TalonNode(ros::NodeHandle parent, std::string name, const TalonConfig &config);
 

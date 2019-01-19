@@ -5,7 +5,7 @@ talons:
     id: 2
     inverted: True
   back_left:
-    id: 3
-  back_right:
     id: 4
+  back_right:
+    id: 3
     inverted: True
