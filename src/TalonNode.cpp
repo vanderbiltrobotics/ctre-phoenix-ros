@@ -22,7 +22,7 @@ namespace motor_control {
             setVelSub(nh.subscribe("set_velocity", 1, &TalonNode::setVelocity, this)),
             lastUpdate(ros::Time::now()){
         server.setCallback(boost::bind(&TalonNode::reconfigure, this, _1, _2));
-        reconfigure(config, 0);
+        server.updateConfig(config);
         stop();
     }
 

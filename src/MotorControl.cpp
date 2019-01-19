@@ -3,39 +3,48 @@
 
 using namespace motor_control;
 
-static std::shared_ptr<ros::NodeHandle> nh;
-static std::vector<std::unique_ptr<TalonNode>> talons;
-
-static TalonConfig createConfig(ros::NodeHandle& nh){
-    motor_control::TalonConfig config;
-    config.interface = nh.getParam("interface", config.interface);
-    config.id = nh.getParam("id", config.id);
-    config.inverted = nh.getParam("inverted", config.inverted);
-    config.peak_voltage = nh.getParam("peak_voltage", config.peak_voltage);
-    config.P = nh.getParam("P", config.P);
-    config.I = nh.getParam("I", config.I);
-    config.D = nh.getParam("D", config.D);
-    config.F = nh.getParam("F", config.F);
-    return config;
-}
-
-static void createTalon(std::string name){
-    auto node = ros::NodeHandle(*nh, name);
-    talons.push_back(std::unique_ptr<TalonNode>(new TalonNode(node, name, createConfig(node))));
-}
-
 int main(int argc, char **argv) {
     ros::init(argc, argv, "motor_control");
-    nh = std::make_shared<ros::NodeHandle>();
+    ros::NodeHandle nh;
+    std::vector<std::unique_ptr<TalonNode>> talons;
 
-    createTalon("fl");
-    createTalon("fr");
-    createTalon("br");
-    createTalon("bl");
+    XmlRpc::XmlRpcValue v;
+    nh.getParam("talons", v);
+    std::for_each(v.begin(), v.end(), [&nh, &talons](auto p){
+        const std::string& name(p.first);
+        XmlRpc::XmlRpcValue& v(p.second);
+        if(v.getType() == XmlRpc::XmlRpcValue::TypeStruct){
+            motor_control::TalonConfig config;
+            if(v.hasMember("interface"))
+                config.interface = (std::string&)v["interface"];
+            if(v.hasMember("id"))
+                config.id = (int&)v["id"];
+            if(v.hasMember("inverted"))
+                config.inverted = (bool&)v["inverted"];
+            if(v.hasMember("peak_voltage"))
+                config.peak_voltage = (double)v["peak_voltage"];
+            if(v.hasMember("P"))
+                config.P = (double)v["P"];
+            if(v.hasMember("I"))
+                config.I = (double)v["I"];
+            if(v.hasMember("D"))
+                config.D = (double)v["D"];
+            if(v.hasMember("F"))
+                config.F = (double)v["F"];
+
+            auto node = ros::NodeHandle(nh, name);
+            talons.push_back(std::make_unique<TalonNode>(node, name, config));
+            ROS_INFO("Created Talon: %s %d %b", name.c_str(), config.id, config.inverted);
+       }else{
+           ROS_INFO("Unrecognized Talon XML member: %s", v.toXml().c_str());
+       }
+    });
 
     ROS_INFO("Spinning node");
     ros::Rate loop_rate(50);
     while(ros::ok()){
+        ctre::phoenix::unmanaged::FeedEnable(50);
+
         std::for_each(talons.begin(), talons.end(), [](std::unique_ptr<TalonNode>& talon){
            talon->update();
         });
